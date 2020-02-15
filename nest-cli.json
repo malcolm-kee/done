@@ -25,6 +25,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/order-app/tsconfig.app.json"
       }
+    },
+    "payment-app": {
+      "type": "application",
+      "root": "apps/payment-app",
+      "entryFile": "main",
+      "sourceRoot": "apps/payment-app/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/payment-app/tsconfig.app.json"
+      }
     }
   }
 }

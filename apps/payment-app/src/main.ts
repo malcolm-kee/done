@@ -3,14 +3,12 @@ import { Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.connectMicroservice({
+  const app = await NestFactory.createMicroservice(AppModule, {
     transport: Transport.REDIS,
     options: {
       url: 'redis://localhost:6379',
     },
   });
-  await app.startAllMicroservicesAsync();
-  await app.listen(3000);
+  await app.listen(() => console.log('payment app is listening'));
 }
 bootstrap();

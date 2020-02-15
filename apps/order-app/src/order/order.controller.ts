@@ -1,10 +1,22 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { ClientProxy, EventPattern } from '@nestjs/microservices';
 import { CreateOrderDto } from './order.dto';
 import { OrderService } from './order.service';
 
 @Controller()
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(
+    private readonly orderService: OrderService,
+    @Inject('ORDER_SERVICE') private readonly client: ClientProxy,
+  ) {}
 
   @Get('status/:id')
   async getOrderStatus(@Param('id') id) {
@@ -13,12 +25,25 @@ export class OrderController {
   }
 
   @Post()
-  createOrder(@Body() createOrderDto: CreateOrderDto) {
-    return this.orderService.create(createOrderDto);
+  async createOrder(@Body() createOrderDto: CreateOrderDto) {
+    const order = await this.orderService.create(createOrderDto);
+    this.client.emit('order_created', { ...createOrderDto, id: order._id });
+    return order;
   }
 
   @Put('cancel/:id')
   cancelOrder(@Param('id') id) {
     return this.orderService.updateStatus(id, 'Cancelled');
+  }
+
+  @EventPattern('payment_process')
+  updateOrderStatusWithPayment(data: {
+    id: string;
+    result: 'success' | 'failure';
+  }) {
+    return this.orderService.updateStatus(
+      data.id,
+      data.result === 'success' ? 'Confirmed' : 'Cancelled',
+    );
   }
 }
