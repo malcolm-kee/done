@@ -6,6 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: console,
   });
+  app.enableCors();
   app.connectMicroservice({
     transport: Transport.REDIS,
     options: {
