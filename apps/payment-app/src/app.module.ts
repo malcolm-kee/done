@@ -1,21 +1,15 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigModule } from '@nestjs/config';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
-    ClientsModule.register([
-      {
-        name: 'PAYMENT_SERVICE',
-        transport: Transport.REDIS,
-        options: {
-          url: 'redis://localhost:6379',
-        },
-      },
-    ]),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    PaymentModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

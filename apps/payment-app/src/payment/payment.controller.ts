@@ -3,7 +3,7 @@ import { ClientProxy, EventPattern } from '@nestjs/microservices';
 import { OrderDto } from './payment.type';
 
 @Controller()
-export class AppController {
+export class PaymentController {
   constructor(
     @Inject('PAYMENT_SERVICE') private readonly client: ClientProxy,
   ) {}

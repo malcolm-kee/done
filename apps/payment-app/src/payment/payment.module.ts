@@ -1,24 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
-import { MongooseModule } from '@nestjs/mongoose';
-import { OrderController } from './order.controller';
-import { OrderSchema } from './order.schema';
-import { OrderService } from './order.service';
+import { PaymentController } from './payment.controller';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      {
-        name: 'Order',
-        schema: OrderSchema,
-      },
-    ]),
-  ],
-  controllers: [OrderController],
+  imports: [],
+  controllers: [PaymentController],
   providers: [
     {
-      provide: 'ORDER_SERVICE',
+      provide: 'PAYMENT_SERVICE',
       useFactory: (configService: ConfigService) => {
         const redisUrl = configService.get<string>('REDIS_URL');
         return ClientProxyFactory.create({
@@ -30,7 +20,6 @@ import { OrderService } from './order.service';
       },
       inject: [ConfigService],
     },
-    OrderService,
   ],
 })
-export class OrderModule {}
+export class PaymentModule {}

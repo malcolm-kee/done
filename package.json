@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@nestjs/common": "^6.10.14",
+    "@nestjs/config": "^0.2.2",
     "@nestjs/core": "^6.10.14",
     "@nestjs/microservices": "^6.11.7",
     "@nestjs/mongoose": "^6.3.1",
