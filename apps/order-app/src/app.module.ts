@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Module, Logger } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ScheduleModule } from '@nestjs/schedule';
 import { OrderModule } from './order/order.module';
 
 @Module({
@@ -15,9 +16,10 @@ import { OrderModule } from './order/order.module';
       }),
       inject: [ConfigService],
     }),
+    ScheduleModule.forRoot(),
     OrderModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [Logger],
 })
 export class AppModule {}

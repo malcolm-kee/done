@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateOrderDto } from './order.dto';
 import { Order, OrderStatus } from './order.type';
+import { Interval } from '@nestjs/schedule';
 
 @Injectable()
 export class OrderService {
@@ -23,5 +24,26 @@ export class OrderService {
     const order = await this.orderModel.findById(id).exec();
     order.status = status;
     return order.save();
+  }
+
+  @Interval(10_000)
+  /**
+   * Update all 'Confirmed' orders to 'Delivered'
+   */
+  async cleanupOrders() {
+    const orders = await this.orderModel
+      .find({
+        status: {
+          $eq: 'Confirmed',
+        },
+      })
+      .exec();
+
+    return Promise.all(
+      orders.map(order => {
+        order.status = 'Delivered';
+        return order.save();
+      }),
+    );
   }
 }

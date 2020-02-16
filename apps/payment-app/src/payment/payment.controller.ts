@@ -12,7 +12,7 @@ export class PaymentController {
   processPaymentForOrder(data: OrderDto) {
     this.client.emit('payment_process', {
       id: data.id,
-      result: Math.random() > 0.5 ? 'success' : 'failure',
+      result: Math.random() > 0.5 ? 'confirmed' : 'declined',
     });
   }
 }

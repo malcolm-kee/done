@@ -3,13 +3,21 @@ import {
   Controller,
   Get,
   Inject,
+  Logger,
   Param,
   Post,
   Put,
+  Res,
 } from '@nestjs/common';
 import { ClientProxy, EventPattern } from '@nestjs/microservices';
+import { Response } from 'express';
 import { CreateOrderDto } from './order.dto';
 import { OrderService } from './order.service';
+
+const logRaceCondition = (orderId: string, scenario: string) =>
+  Logger.error(
+    `Race condition [orderId: ${orderId}] - ${scenario} when order is no longer at created state`,
+  );
 
 @Controller()
 export class OrderController {
@@ -32,18 +40,31 @@ export class OrderController {
   }
 
   @Put('cancel/:id')
-  cancelOrder(@Param('id') id) {
-    return this.orderService.updateStatus(id, 'Cancelled');
+  async cancelOrder(@Param('id') id, @Res() response: Response) {
+    const order = await this.orderService.get(id);
+    if (order.status !== 'Created') {
+      logRaceCondition(id, 'Cancel order');
+      return response.status(409).json(order);
+    }
+
+    const updatedOrder = await this.orderService.updateStatus(id, 'Cancelled');
+    return response.json(updatedOrder);
   }
 
   @EventPattern('payment_process')
-  updateOrderStatusWithPayment(data: {
+  async updateOrderStatusWithPayment(data: {
     id: string;
-    result: 'success' | 'failure';
+    result: 'confirmed' | 'declined';
   }) {
-    return this.orderService.updateStatus(
-      data.id,
-      data.result === 'success' ? 'Confirmed' : 'Cancelled',
-    );
+    const order = await this.orderService.get(data.id);
+
+    if (order.status !== 'Created') {
+      logRaceCondition(data.id, 'Payment success');
+    } else {
+      return this.orderService.updateStatus(
+        data.id,
+        data.result === 'confirmed' ? 'Confirmed' : 'Cancelled',
+      );
+    }
   }
 }
