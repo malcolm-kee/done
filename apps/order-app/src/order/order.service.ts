@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Interval } from '@nestjs/schedule';
 import { Model } from 'mongoose';
 import { CreateOrderDto } from './order.dto';
 import { Order, OrderStatus } from './order.type';
-import { Interval } from '@nestjs/schedule';
 
 @Injectable()
 export class OrderService {
@@ -11,17 +11,27 @@ export class OrderService {
     @InjectModel('Order') private readonly orderModel: Model<Order>,
   ) {}
 
-  async get(id: string): Promise<Order> {
+  getOne(id: string): Promise<Order> {
     return this.orderModel.findById(id).exec();
   }
 
-  async create(createOrderDto: CreateOrderDto): Promise<Order> {
+  create(createOrderDto: CreateOrderDto): Promise<Order> {
     const createdOrder = new this.orderModel(createOrderDto);
     return createdOrder.save();
   }
 
+  getOrdersForUser(userId: string): Promise<Order[]> {
+    return this.orderModel
+      .find({ userId })
+      .sort({
+        createdAt: 'desc',
+      })
+      .exec();
+  }
+
   async updateStatus(id: string, status: OrderStatus): Promise<Order> {
     const order = await this.orderModel.findById(id).exec();
+
     order.status = status;
     return order.save();
   }
