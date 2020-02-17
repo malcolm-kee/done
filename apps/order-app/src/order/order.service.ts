@@ -3,12 +3,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Interval } from '@nestjs/schedule';
 import { Model } from 'mongoose';
 import { CreateOrderDto } from './order.dto';
-import { Order, OrderStatus } from './order.type';
+import { Order, OrderStatus, ORDER_SCHEMA_NAME } from './order.type';
 
 @Injectable()
 export class OrderService {
   constructor(
-    @InjectModel('Order') private readonly orderModel: Model<Order>,
+    @InjectModel(ORDER_SCHEMA_NAME) private readonly orderModel: Model<Order>,
   ) {}
 
   getOne(id: string): Promise<Order> {

@@ -5,12 +5,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { OrderController } from './order.controller';
 import { OrderSchema } from './order.schema';
 import { OrderService } from './order.service';
+import { ORDER_SCHEMA_NAME, ORDER_SERVICE } from './order.type';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       {
-        name: 'Order',
+        name: ORDER_SCHEMA_NAME,
         schema: OrderSchema,
       },
     ]),
@@ -18,7 +19,7 @@ import { OrderService } from './order.service';
   controllers: [OrderController],
   providers: [
     {
-      provide: 'ORDER_SERVICE',
+      provide: ORDER_SERVICE,
       useFactory: (configService: ConfigService) => {
         const redisUrl = configService.get<string>('REDIS_URL');
         return ClientProxyFactory.create({

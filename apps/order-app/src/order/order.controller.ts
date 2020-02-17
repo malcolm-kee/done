@@ -14,6 +14,7 @@ import { Response } from 'express';
 import * as moment from 'moment';
 import { CreateOrderDto } from './order.dto';
 import { OrderService } from './order.service';
+import { ORDER_SERVICE } from './order.type';
 
 const logRaceCondition = (orderId: string, scenario: string) =>
   Logger.error(
@@ -24,7 +25,7 @@ const logRaceCondition = (orderId: string, scenario: string) =>
 export class OrderController {
   constructor(
     private readonly orderService: OrderService,
-    @Inject('ORDER_SERVICE') private readonly client: ClientProxy,
+    @Inject(ORDER_SERVICE) private readonly client: ClientProxy,
   ) {}
 
   @Get('user/:userId')
