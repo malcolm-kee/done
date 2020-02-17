@@ -16,8 +16,7 @@ export class OrderService {
   }
 
   create(createOrderDto: CreateOrderDto): Promise<Order> {
-    const createdOrder = new this.orderModel(createOrderDto);
-    return createdOrder.save();
+    return this.orderModel.create(createOrderDto);
   }
 
   getOrdersForUser(userId: string): Promise<Order[]> {
