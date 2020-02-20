@@ -1,15 +1,26 @@
-version: "3"
+version: '3'
 services:
-  web:
-    build: .
+  order:
+    build:
+      context: .
+      dockerfile: order.Dockerfile
     ports:
-      - "3000:3000"
-    volumes:
-      - .:/home/node/code
-      - /home/node/code/node_modules
+      - '3000:3000'
     links:
       - db
+      - msg
     environment:
-      MONGO_CONNECTION_STRING: mongodb://db:27017
+      ORDER_MONGODB_URL: mongodb://db:27017/order
+      REDIS_URL: redis://msg:6379
+  payment:
+    build:
+      context: .
+      dockerfile: payment.Dockerfile
+    links:
+      - msg
+    environment:
+      REDIS_URL: redis://msg:6379
   db:
     image: mongo:3
+  msg:
+    image: redis:4.0-alpine
