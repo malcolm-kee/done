@@ -11,8 +11,10 @@ import {
 } from '@nestjs/common';
 import { ClientProxy, EventPattern } from '@nestjs/microservices';
 import { Response } from 'express';
+import * as moment from 'moment';
 import { CreateOrderDto } from './order.dto';
 import { OrderService } from './order.service';
+import { ORDER_SERVICE } from './order.type';
 
 const logRaceCondition = (orderId: string, scenario: string) =>
   Logger.error(
@@ -23,12 +25,23 @@ const logRaceCondition = (orderId: string, scenario: string) =>
 export class OrderController {
   constructor(
     private readonly orderService: OrderService,
-    @Inject('ORDER_SERVICE') private readonly client: ClientProxy,
+    @Inject(ORDER_SERVICE) private readonly client: ClientProxy,
   ) {}
 
+  @Get('user/:userId')
+  async getOrdersForUser(@Param('userId') userId: string) {
+    const orders = await this.orderService.getOrdersForUser(userId);
+    return orders.map(order => ({
+      ...order.toJSON(),
+      createdAt: order.createdAt ? moment(order.createdAt).calendar() : '',
+      updatedAt: order.updatedAt ? moment(order.updatedAt).calendar() : '',
+    }));
+  }
+
   @Get('status/:id')
-  async getOrderStatus(@Param('id') id) {
-    const order = await this.orderService.get(id);
+  async getOrderStatus(@Param('id') id: string) {
+    const order = await this.orderService.getOne(id);
+
     return { status: order.status };
   }
 
@@ -41,7 +54,7 @@ export class OrderController {
 
   @Put('cancel/:id')
   async cancelOrder(@Param('id') id, @Res() response: Response) {
-    const order = await this.orderService.get(id);
+    const order = await this.orderService.getOne(id);
     if (order.status !== 'Created') {
       logRaceCondition(id, 'Cancel order');
       return response.status(409).json(order);
@@ -56,7 +69,7 @@ export class OrderController {
     id: string;
     result: 'confirmed' | 'declined';
   }) {
-    const order = await this.orderService.get(data.id);
+    const order = await this.orderService.getOne(data.id);
 
     if (order.status !== 'Created') {
       logRaceCondition(data.id, 'Payment success');
