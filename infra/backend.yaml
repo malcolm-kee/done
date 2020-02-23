@@ -1,0 +1,60 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: done
+spec:
+  selector:
+    app: order
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order
+spec:
+  selector:
+    matchLabels:
+      app: order
+  replicas: 1
+  template:
+    metadata:
+      name: order
+      labels:
+        app: order
+    spec:
+      containers:
+        - name: order
+          image: malcolmkee/doneorder
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          env:
+            - name: ORDER_MONGODB_URL
+              value: 'mongodb://mongo-0.mongo:27017,mongo-1.mongo:27017,mongo-2.mongo:27017/order?replicaSet=rs0'
+            - name: REDIS_URL
+              value: 'redis://redis:6379'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment
+spec:
+  selector:
+    matchLabels:
+      app: payment
+  replicas: 1
+  template:
+    metadata:
+      name: payment
+      labels:
+        app: payment
+    spec:
+      containers:
+        - name: payment
+          image: malcolmkee/donepayment
+          env:
+            - name: REDIS_URL
+              value: 'redis://redis:6379'
