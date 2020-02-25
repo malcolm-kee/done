@@ -17,6 +17,7 @@ import * as moment from 'moment';
 import { CreateOrderDto, UpdateOrderStatusWithPaymentDto } from './order.dto';
 import { OrderService } from './order.service';
 import { ORDER_SERVICE } from './order.type';
+import { ApiResponse } from '@nestjs/swagger';
 
 const logRaceCondition = (orderId: string, scenario: string) =>
   Logger.error(
@@ -48,21 +49,40 @@ export class OrderController {
   }
 
   @Post()
+  @ApiResponse({
+    status: 201,
+    description: 'The order has been created successfully.',
+  })
   async createOrder(@Body() createOrderDto: CreateOrderDto) {
     const order = await this.orderService.create(createOrderDto);
     this.client.emit('order_created', { ...createOrderDto, id: order._id });
     return order;
   }
 
-  @Put('cancel/:id')
-  async cancelOrder(@Param('id') id, @Res() response: Response) {
-    const order = await this.orderService.getOne(id);
+  @Put('cancel/:orderId')
+  @ApiResponse({
+    status: 200,
+    description: 'The order has been cancelled successfully.',
+  })
+  @ApiResponse({
+    status: 409,
+    description:
+      'Cancellation not allowed as order payment has been processed.',
+  })
+  async cancelOrder(
+    @Param('orderId') orderId: string,
+    @Res() response: Response,
+  ) {
+    const order = await this.orderService.getOne(orderId);
     if (order.status !== 'Created') {
-      logRaceCondition(id, 'Cancel order');
+      logRaceCondition(orderId, 'Cancel order');
       return response.status(409).json(order);
     }
 
-    const updatedOrder = await this.orderService.updateStatus(id, 'Cancelled');
+    const updatedOrder = await this.orderService.updateStatus(
+      orderId,
+      'Cancelled',
+    );
     return response.json(updatedOrder);
   }
 
