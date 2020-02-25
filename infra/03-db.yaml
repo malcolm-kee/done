@@ -41,10 +41,17 @@ spec:
       containers:
         - image: mongo:3.4
           name: mongo
+          env:
+            - name: MONGO_REPLSET
+              valueFrom:
+                configMapKeyRef:
+                  name: doneconfigmap
+                  key: mongo-replset
           command:
             - mongod
+          args:
             - '--replSet'
-            - rs0
+            - '$(MONGO_REPLSET)'
             - '--bind_ip'
             - '0.0.0.0'
             - '--smallfiles'

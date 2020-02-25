@@ -32,8 +32,13 @@ spec:
             - containerPort: 3000
               protocol: TCP
           env:
+            - name: MONGO_REPLSET
+              valueFrom:
+                configMapKeyRef:
+                  name: doneconfigmap
+                  key: mongo-replset
             - name: ORDER_MONGODB_URL
-              value: 'mongodb://mongo-0.mongo:27017,mongo-1.mongo:27017,mongo-2.mongo:27017/order?replicaSet=rs0'
+              value: 'mongodb://mongo-0.mongo:27017,mongo-1.mongo:27017,mongo-2.mongo:27017/order?replicaSet=$(MONGO_REPLSET)'
             - name: REDIS_URL
               value: 'redis://redis:6379'
 ---

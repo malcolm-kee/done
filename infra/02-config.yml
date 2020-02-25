@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: doneconfigmap
+  labels:
+    app: done
+data:
+  mongo-replset: rs0
