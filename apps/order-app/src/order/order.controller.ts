@@ -8,11 +8,13 @@ import {
   Post,
   Put,
   Res,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ClientProxy, EventPattern } from '@nestjs/microservices';
 import { Response } from 'express';
 import * as moment from 'moment';
-import { CreateOrderDto } from './order.dto';
+import { CreateOrderDto, UpdateOrderStatusWithPaymentDto } from './order.dto';
 import { OrderService } from './order.service';
 import { ORDER_SERVICE } from './order.type';
 
@@ -65,10 +67,8 @@ export class OrderController {
   }
 
   @EventPattern('payment_process')
-  async updateOrderStatusWithPayment(data: {
-    id: string;
-    result: 'confirmed' | 'declined';
-  }) {
+  @UsePipes(new ValidationPipe())
+  async updateOrderStatusWithPayment(data: UpdateOrderStatusWithPaymentDto) {
     const order = await this.orderService.getOne(data.id);
 
     if (order.status !== 'Created') {

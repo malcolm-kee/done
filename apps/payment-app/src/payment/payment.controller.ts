@@ -1,6 +1,6 @@
-import { Controller, Inject } from '@nestjs/common';
+import { Controller, Inject, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ClientProxy, EventPattern } from '@nestjs/microservices';
-import { OrderDto } from './payment.type';
+import { OrderDto } from './payment.dto';
 
 @Controller()
 export class PaymentController {
@@ -9,6 +9,7 @@ export class PaymentController {
   ) {}
 
   @EventPattern('order_created')
+  @UsePipes(new ValidationPipe())
   processPaymentForOrder(data: OrderDto) {
     this.client.emit('payment_process', {
       id: data.id,
