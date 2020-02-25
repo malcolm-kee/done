@@ -3,7 +3,7 @@ services:
   order:
     build:
       context: .
-      dockerfile: order.Dockerfile
+      dockerfile: docker-config/order.Dockerfile
     ports:
       - '3000:3000'
     links:
@@ -15,7 +15,7 @@ services:
   payment:
     build:
       context: .
-      dockerfile: payment.Dockerfile
+      dockerfile: docker-config/payment.Dockerfile
     links:
       - msg
     environment:
