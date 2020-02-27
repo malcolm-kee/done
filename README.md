@@ -6,10 +6,8 @@
 
 There are two ways to install dependencies and run this application:
 
-1. Using Docker (recommended)
-2. Manual
-
-### Using Docker
+<details>
+   <summary>Using Docker (recommended)</summary>
 
 At the root of this project, run the following command:
 
@@ -17,7 +15,10 @@ At the root of this project, run the following command:
 docker-compose up
 ```
 
-### Manual
+</details>
+
+<details>
+   <summary>Manual</summary>
 
 1. Install MongoDB
 1. Install Redis
@@ -45,3 +46,11 @@ docker-compose up
    ```bash
    yarn start:payment:dev
    ```
+
+</details>
+
+## API
+
+Once you start the server, you can access the Swagger UI at localhost:3000/api
+
+You can get the Swagger JSON file at `/api-json`.
